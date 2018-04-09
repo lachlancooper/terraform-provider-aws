@@ -1,6 +1,8 @@
 SWEEP?=us-east-1,us-west-2
 TEST?=./...
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+MIDDLEMAN_VERSION?="0.3.32"
+WEBSITE_REPO="github.com/hashicorp/terraform-website"
 
 default: build
 
@@ -46,5 +48,24 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-.PHONY: build sweep test testacc vet fmt fmtcheck errcheck vendor-status test-compile
+website:
+ifneq (,$(wildcard "$(GOPATH)/src/$WEBSITE_REPO"))
+	echo "$(WEBSITE_REPO) not found in your GOPATH (necessary for layouts and assets), get-ting..."
+	go get $WEBSITE_REPO
+endif
+	@echo "==> Starting website in Docker..."
+	@docker run \
+		--interactive \
+		--rm \
+		--tty \
+		--publish "4567:4567" \
+		--publish "35729:35729" \
+		--volume "$(shell pwd)/website:/website" \
+		--volume "$(shell pwd)/website:/ext/providers/aws/website" \
+		--volume "$(GOPATH)/src/$(WEBSITE_REPO)/content:/terraform-website" \
+		--volume "$(GOPATH)/src/$(WEBSITE_REPO)/content/source/assets:/website/docs/assets" \
+		--volume "$(GOPATH)/src/$(WEBSITE_REPO)/content/source/layouts:/website/docs/layouts" \
+		hashicorp/middleman-hashicorp:${MIDDLEMAN_VERSION}
+
+.PHONY: build sweep test testacc vet fmt fmtcheck errcheck vendor-status test-compile website
 
