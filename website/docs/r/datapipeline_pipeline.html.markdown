@@ -22,15 +22,15 @@ resource "aws_datapipeline_pipeline" "default" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of Pipeline.
-* `description` - (Optional) The description of Pipeline.
+* `name` - (Required) The name of the Pipeline.
+* `description` - (Optional) The description of the Pipeline.
 * `tags` - (Optional) A map of tags to assign to the resource.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The identifier of the client certificate.
+* `id` - The identifier of the Pipeline.
 
 ## Import
 
